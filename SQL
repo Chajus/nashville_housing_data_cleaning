@@ -1,0 +1,223 @@
+USE Nashville;
+
+-- Initial Data Check
+
+SELECT *
+FROM `nashville housing`;
+
+SELECT COUNT(*)
+FROM `nashville housing`;
+
+SELECT 
+	UniqueID, ParcelID, LandUse, PropertyAddress, SaleDate, SalePrice, LegalReference, SoldAsVacant, OwnerName, OwnerAddress,
+    Acreage, TaxDistrict, LandValue, BuildingValue, TotalValue, YearBuilt, Bedrooms, FullBath, HalfBath, COUNT(*) AS Duplicate
+FROM `nashville housing`
+GROUP BY 
+	UniqueID, ParcelID, LandUse, PropertyAddress, SaleDate, SalePrice, LegalReference, SoldAsVacant, OwnerName, OwnerAddress,
+    Acreage, TaxDistrict, LandValue, BuildingValue, TotalValue, YearBuilt, Bedrooms, FullBath, HalfBath
+HAVING COUNT(*) > 1;
+
+-- NULL Check
+
+SELECT COUNT(*)
+FROM `nashville housing`
+WHERE PropertyAddress IS NULL;
+
+SELECT COUNT(*)
+FROM `nashville housing`
+WHERE OwnerAddress IS NULL;
+
+SELECT COUNT(*)
+FROM `nashville housing`
+WHERE OwnerName IS NULL;
+
+SELECT COUNT(*)
+FROM `nashville housing`
+WHERE Bedrooms IS NULL;
+
+SELECT COUNT(*)
+FROM `nashville housing`
+WHERE YearBuilt IS NULL;
+
+-- Counting Duplicate Rows
+
+SELECT ParcelID, COUNT(*) AS Duplicate_Parcel
+FROM `nashville housing`
+GROUP BY ParcelID
+HAVING COUNT(ParcelID) > 1;
+
+SELECT PropertyAddress, COUNT(*) AS Duplicate_Property
+FROM `nashville housing`
+GROUP BY PropertyAddress
+HAVING COUNT(PropertyAddress) > 1;
+
+SELECT SalePrice, COUNT(*) AS Duplicate_Sale
+FROM `nashville housing`
+GROUP BY SalePrice
+HAVING COUNT(SalePrice) > 1;
+
+SELECT SaleDate, COUNT(*) AS Duplicate_Date
+FROM `nashville housing` 
+GROUP BY SaleDate
+HAVING COUNT(SaleDate) > 1;
+
+SELECT LegalReference, COUNT(*) AS Duplicate_Legal
+FROM `nashville housing`
+GROUP BY LegalReference
+HAVING COUNT(LegalReference) > 1;
+
+-- Fix Missing Property Address
+
+SELECT PropertyAddress, LENGTH(PropertyAddress)
+FROM `nashville housing`
+ORDER BY LENGTH(PropertyAddress);
+
+SELECT PropertyAddress, ParcelID
+FROM `nashville housing`
+WHERE PropertyAddress IS NULL
+   OR PropertyAddress = '';
+
+SELECT ParcelID, LENGTH(ParcelID)
+FROM `nashville housing`
+ORDER BY LENGTH(ParcelID);
+
+SELECT ParcelID, PropertyAddress
+FROM `nashville housing`
+WHERE ParcelID = '025 07 0 031.00';
+
+-- Updating Empty Addresses
+
+SELECT a.ParcelID, a.PropertyAddress, b.PropertyAddress
+FROM `nashville housing` AS a
+JOIN `nashville housing` AS b
+	ON a.ParcelID = b.ParcelID;
+
+UPDATE `nashville housing` a
+JOIN `nashville housing` b
+	ON a.ParcelID = b.ParcelID
+SET a.PropertyAddress = b.PropertyAddress
+WHERE a.PropertyAddress = ''
+AND b.PropertyAddress != ''
+AND a.UniqueID != b.UniqueID;
+
+SELECT COUNT(*)
+FROM `nashville housing`
+WHERE PropertyAddress = '';
+
+SHOW COLUMNS
+FROM `nashville housing`;
+
+-- NEW SaleDate Column
+
+ALTER TABLE `nashville housing`
+ADD SaleDateConverted DATE;
+
+UPDATE `nashville housing`
+SET SaleDateConverted = STR_TO_DATE(SaleDate, '%M %d, %Y');
+
+-- Splitting The Address To Street and City
+
+SELECT PropertyAddress
+FROM `nashville housing`
+LIMIT 10;
+
+ALTER TABLE `nashville housing`
+ADD PropertyStreet TEXT;
+
+ALTER TABLE `nashville housing`
+ADD PropertyCity TEXT;
+
+SELECT 
+	PropertyAddress, 
+	SUBSTRING_INDEX(PropertyAddress, ',', 1) AS Street,
+    TRIM(SUBSTRING_INDEX(PropertyAddress, ',', -1)) AS City
+FROM `nashville housing`;
+
+UPDATE `nashville housing`
+SET 
+	PropertyStreet = SUBSTRING_INDEX(PropertyAddress, ',', 1),
+    PropertyCity = TRIM(SUBSTRING_INDEX(PropertyAddress, ',', -1));
+
+SELECT PropertyAddress, PropertyStreet, PropertyCity
+FROM `nashville housing`
+LIMIT 10;
+
+-- Split OwnerAddress Into Street, City, State
+
+SELECT OwnerAddress
+FROM `nashville housing`;
+
+ALTER TABLE `nashville housing`
+ADD OwnerStreet TEXT;
+
+ALTER TABLE `nashville housing`
+ADD OwnerCity TEXT ;
+
+ALTER TABLE `nashville housing`
+ADD OwnerState TEXT;
+
+SELECT
+	OwnerAddress,
+    SUBSTRING_INDEX(OwnerAddress, ',', 1) AS OwnerStreet,
+    TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(OwnerAddress, ',', 2), ',', -1)) AS OwnerCity,
+    TRIM(SUBSTRING_INDEX(OwnerAddress, ',', -1)) AS OwnerState
+FROM `nashville housing`;
+
+UPDATE `nashville housing`
+SET
+	OwnerStreet = SUBSTRING_INDEX(OwnerAddress, ',', 1),
+    OwnerCity = TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(OwnerAddress, ',', 2), ',', -1)),	
+    OwnerState = TRIM(SUBSTRING_INDEX(OwnerAddress, ',', -1));
+    
+SELECT OwnerAddress, OwnerStreet, OwnerCity, OwnerState
+FROM `nashville housing`
+LIMIT 10;
+
+-- Standarizing SoldAsVacant
+
+SELECT DISTINCT SoldAsVacant
+FROM `nashville housing`;
+
+UPDATE `nashville housing`
+SET SoldAsVacant =
+    CASE
+        WHEN SoldAsVacant = 'N' THEN 'No'
+        WHEN SoldAsVacant = 'Y' THEN 'Yes'
+        ELSE SoldAsVacant
+    END;
+    
+SELECT DISTINCT SoldAsVacant
+FROM `nashville housing`;
+
+-- Removing Duplicates
+
+SELECT *
+FROM (
+	SELECT
+		*,
+		ROW_NUMBER() OVER (
+			PARTITION BY ParcelID, PropertyAddress, SalePrice, SaleDate, LegalReference
+			ORDER BY UniqueID
+		) AS row_num
+	FROM `nashville housing`
+) AS numbered
+WHERE row_num > 1;
+    
+WITH duplicates AS (
+	SELECT
+		*,
+		ROW_NUMBER() OVER (
+			PARTITION BY ParcelID, PropertyAddress, SalePrice, SaleDate, LegalReference
+			ORDER BY UniqueID
+	) AS row_num
+    FROM `nashville housing`
+)
+DELETE
+FROM `nashville housing`
+WHERE UniqueID IN (
+    SELECT UniqueID
+    FROM duplicates
+    WHERE row_num > 1
+);
+    
+
