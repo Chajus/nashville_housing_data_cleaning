@@ -1,2 +1,52 @@
-# nashville_housing_data_cleaning
-SQL data cleaning project using Nashville Housing dataset.
+# Nashville Housing Data Cleaning
+
+**Project Type:** SQL Data Cleaning  
+**Dataset:** Nashville Housing Dataset  
+
+---
+
+## Overview
+This project demonstrates cleaning and organizing the Nashville Housing dataset using SQL. The goal was to ensure data consistency, remove duplicates, standardize values, and prepare the dataset for analysis.
+
+---
+
+## Steps Performed
+1. **Initial Data Checks**
+   - Reviewed all rows and columns
+   - Counted total records
+   - Checked for duplicate ParcelIDs and key columns
+   - Identified missing or NULL values
+
+2. **Data Cleaning**
+   - Updated empty `PropertyAddress` fields by joining on `ParcelID`
+   - Converted `SaleDate` to a proper DATE format
+   - Split `PropertyAddress` into `PropertyStreet` and `PropertyCity`
+   - Split `OwnerAddress` into `OwnerStreet`, `OwnerCity`, and `OwnerState`
+   - Standardized `SoldAsVacant` values (`Y/N → Yes/No`)
+
+3. **Removing Duplicates**
+   - Identified duplicates based on `ParcelID`, `PropertyAddress`, `SalePrice`, `SaleDate`, `LegalReference`
+   - Removed duplicate rows while preserving unique records
+
+---
+
+## How to Use
+1. Open the SQL script in this repository: [`nashville_housing_cleaning.sql`](nashville_housing_cleaning.sql)  
+2. Run the queries in your preferred SQL environment (MySQL recommended)  
+3. Observe results for cleaned and validated data
+
+---
+
+## Notes
+- SQL version tested: MySQL  
+- Queries are commented for clarity  
+- Dataset source: [Include if publicly available]
+
+---
+
+## Portfolio Context
+This project demonstrates key data analyst skills:
+- SQL data cleaning and transformations  
+- Handling NULLs and duplicates  
+- Standardizing and parsing address data  
+- Preparing datasets for analysis or visualization
