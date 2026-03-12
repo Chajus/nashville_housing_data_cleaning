@@ -37,10 +37,12 @@ This project demonstrates cleaning and organizing the Nashville Housing dataset 
 
 ---
 
-## Notes
-- SQL version tested: MySQL  
-- Queries are commented for clarity  
-- Dataset source: [Include if publicly available]
+## Tableau Dashboard
+
+Interactive visualization created using the cleaned Nashville Housing dataset.
+
+🔗 **View Interactive Dashboard:**  
+https://public.tableau.com/views/YourDashboardName/Sheet1
 
 ---
 
@@ -50,3 +52,4 @@ This project demonstrates key data analyst skills:
 - Handling NULLs and duplicates  
 - Standardizing and parsing address data  
 - Preparing datasets for analysis or visualization
+- Visualization of dataset in Tableau
