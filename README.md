@@ -44,7 +44,7 @@ Interactive visualization created using the cleaned Nashville Housing dataset.
 🔗 **View Interactive Dashboard:**  [https://public.tableau.com/app/profile/justincha/viz/NashvilleHousingDataCleaningVisualizationSQLTableau/Dashboard1?publish=yes]
 
 
-![Dashboard Preview](screenshots/dashboard_preview.png)
+![Dashboard Preview](dashboard_preview.png)
 
 ---
 
