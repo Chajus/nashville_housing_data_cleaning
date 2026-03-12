@@ -41,8 +41,7 @@ This project demonstrates cleaning and organizing the Nashville Housing dataset 
 
 Interactive visualization created using the cleaned Nashville Housing dataset.
 
-🔗 **View Interactive Dashboard:**  
-https://public.tableau.com/views/YourDashboardName/Sheet1
+🔗 **View Interactive Dashboard:**  [https://public.tableau.com/app/profile/justincha/viz/NashvilleHousingDataCleaningVisualizationSQLTableau/Dashboard1?publish=yes]
 
 ---
 
