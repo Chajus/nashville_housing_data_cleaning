@@ -31,7 +31,7 @@ This project demonstrates cleaning and organizing the Nashville Housing dataset 
 ---
 
 ## How to Use
-1. Open the SQL script in this repository: [`nashville_housing_cleaning.sql`](nashville_housing_cleaning.sql)  
+1. Open the SQL script in this repository: [`SQL`](SQL)  
 2. Run the queries in your preferred SQL environment (MySQL recommended)  
 3. Observe results for cleaned and validated data
 
